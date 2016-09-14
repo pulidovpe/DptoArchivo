@@ -1,0 +1,106 @@
+////////////// Procedimientos Almacenados Tabla Documento ///////////////
+
+DROP PROCEDURE IF EXISTS dpto_archivo.doc_ins$$
+CREATE PROCEDURE dpto_archivo.doc_ins (in numDoc1 int(10),in fechaAbre1 date,in dpto1 varchar(45), in tipoDoc1 varchar(60),in fecha1 date,in titulo1 varchar(100),in ubicacion1 varchar(45),in login1 varchar(9))
+BEGIN
+INSERT INTO dpto_archivo.documento VALUES (numDoc1,fechaAbre1,dpto1,tipoDoc1,fecha1,titulo1,ubicacion1,login1);
+END
+$$
+
+DROP PROCEDURE IF EXISTS dpto_archivo.doc_upd$$
+CREATE PROCEDURE dpto_archivo.doc_upd (in numDoc1 int(10),in dpto1 varchar(45), in tipoDoc1 varchar(60),in fecha1 date,in titulo1 varchar(100),in ubicacion1 varchar(45),in login1 varchar(9))
+BEGIN
+UPDATE dpto_archivo.documento SET documento.dpto=dpto1, documento.tipoDoc=tipoDoc1, documento.fecha=fecha1, documento.titulo=titulo1, documento.ubicacion=ubicacion1, documento.login=login1 WHERE documento.numDoc=numDoc1;
+END
+$$
+
+DROP PROCEDURE IF EXISTS dpto_archivo.doc_del$$
+CREATE PROCEDURE dpto_archivo.doc_del (in numDoc1 int(10))
+BEGIN
+DELETE FROM dpto_archivo.documento WHERE documento.numDoc=numDoc1;
+END
+$$
+
+////////////// Procedimientos Almacenados Tabla clavePer y datosPer ///////////////
+
+DROP PROCEDURE IF EXISTS dpto_archivo.per_ins$$
+CREATE PROCEDURE dpto_archivo.per_ins (in cedulaPer1 varchar(9),in cedulaOper1 varchar(9),in tipoPer1 tinyint(1),in clave1 varchar(256),in nombre1 varchar(45),in direccion1 varchar(60),in telefono1 varchar(21),in sexo1 char(1))
+BEGIN
+INSERT INTO dpto_archivo.clavePer VALUES (cedulaPer1,tipoPer1,clave1);
+INSERT INTO dpto_archivo.datosPer VALUES (cedulaPer1,cedulaOper1,nombre1,direccion1,telefono1,sexo1,cedulaPer1);
+END
+$$
+
+DROP PROCEDURE IF EXISTS dpto_archivo.per_upd$$
+CREATE PROCEDURE dpto_archivo.per_upd (in cedulaPer1 varchar(9),in cedulaOper1 varchar(9),in nombre1 varchar(45),in direccion1 varchar(60),in telefono1 varchar(21),in sexo1 char(1))
+BEGIN
+UPDATE dpto_archivo.datosPer SET datosPer.cedulaOper=cedulaOper1, datosPer.nombre=nombre1, datosPer.direccion=direccion1, datosPer.telefono=telefono1, datosPer.sexo=sexo1 WHERE datosPer.cedulaPer=cedulaPer1;
+END
+$$
+
+
+DROP PROCEDURE IF EXISTS dpto_archivo.per_del$$
+CREATE PROCEDURE dpto_archivo.per_del (in loginPer1 varchar(9))
+BEGIN
+DELETE FROM dpto_archivo.clavePer WHERE clavePer.loginPer=loginPer1;
+DELETE FROM dpto_archivo.datosPer WHERE datosPer.cedulaPer=loginPer1;
+END
+$$
+
+////////////// Procedimientos Almacenados Tabla requisiExp ///////////////
+
+DROP PROCEDURE IF EXISTS dpto_archivo.req_ins$$
+CREATE PROCEDURE dpto_archivo.req_ins (in codReqExp1 tinyint(2),in descripcion1 varchar(155),in codTipoExp1 tinyint(2))
+BEGIN
+INSERT INTO dpto_archivo.requisiExp VALUES (codReqExp1, descripcion1, codTipoExp1);
+END
+$$
+
+
+////////////// Procedimientos Almacenados Tabla Especialidad ///////////////
+
+DROP PROCEDURE IF EXISTS dpto_archivo.esp_ins$$
+CREATE PROCEDURE dpto_archivo.esp_ins (in codEsp1 tinyint(2),in descripEsp1 varchar(80),in nivelAca1 tinyint(1))
+BEGIN
+INSERT INTO dpto_archivo.especialidad VALUES (codEsp1, descripEsp1, nivelAca1);
+END
+$$
+
+DROP PROCEDURE IF EXISTS dpto_archivo.esp_upd$$
+CREATE PROCEDURE dpto_archivo.esp_upd (in codEsp1 tinyint(2),in descripEsp1 varchar(80),in nivelAca1 tinyint(1))
+BEGIN
+UPDATE dpto_archivo.especialidad SET especialidad.descripEsp=descripEsp1, especialidad.nivelAca=nivelAca1 WHERE especialidad.codEsp=codEsp1;
+END
+$$
+
+DROP PROCEDURE IF EXISTS dpto_archivo.esp_del$$
+CREATE PROCEDURE dpto_archivo.esp_del (in codEsp1 tinyint(2))
+BEGIN
+DELETE FROM dpto_archivo.especialidad WHERE especialidad.codEsp=codEsp1;
+END
+$$
+
+////////////// Procedimientos Almacenados Tabla Expediente ///////////////
+
+DROP PROCEDURE IF EXISTS dpto_archivo.exp_ins$$
+CREATE PROCEDURE dpto_archivo.exp_ins (in numExp1 int(11),in cedulaExp1 varchar(9),in fechaAbre1 date,in fechaAct1 date,in codEsp1 tinyint(2),in codTipoExp1 tinyint(2),in requisitos1 varchar(200),in ubicacion1 varchar(45),in amonesta1 char(1),in observa1 varchar(80),in activo1 char(1),in login1 varchar(9),in reqpend1 tinyint(4))
+BEGIN
+INSERT INTO dpto_archivo.expediente VALUES (numExp1, cedulaExp1, fechaAbre1, fechaAct1, codEsp1, codTipoExp1, requisitos1, ubicacion1, amonesta1, observa1, activo1, login1, reqpend1);
+END
+$$
+
+DROP PROCEDURE IF EXISTS dpto_archivo.exp_upd$$
+CREATE PROCEDURE dpto_archivo.exp_upd (in numExp1 int(11),in cedulaExp1 varchar(9),in fechaAct1 date,in codEsp1 tinyint(2),in codTipoExp1 tinyint(2),in requisitos1 varchar(200),in ubicacion1 varchar(45),in amonesta1 char(1),in observa1 varchar(80),in activo1 char(1),in login1 varchar(9),in reqpend1 tinyint(4))
+BEGIN
+UPDATE dpto_archivo.expediente SET expediente.cedulaExp=cedulaExp1, expediente.fechaAct=fechaAct1, expediente.codEsp=codEsp1, expediente.codTipoExp=codTipoExp1, expediente.requisitos=requisitos1, expediente.ubicacion=ubicacion1, expediente.amonesta=amonesta1, expediente.observa=observa1, expediente.activo=activo1, expediente.login=login1, expediente.reqpend=reqpend1 WHERE expediente.numExp=numExp1;
+END
+$$
+
+DROP PROCEDURE IF EXISTS dpto_archivo.exp_del$$
+CREATE PROCEDURE dpto_archivo.exp_del (in numExp1 int(11),in codEsp1 tinyint(2))
+BEGIN
+DELETE FROM dpto_archivo.expediente WHERE expediente.numExp=numExp1 AND expediente.codEsp=codEsp1;
+END
+$$
+
+

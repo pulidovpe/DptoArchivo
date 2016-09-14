@@ -1,0 +1,190 @@
+<?php
+
+header("Content-Type: text/html;charset=utf-8");
+include_once("conexion.php");
+define('FPDF_FONTPATH','font/');
+require('fpdf.php');
+
+//$path = $_SERVER['PHP_SELF'];
+//$file = dirname($path);
+//echo $file;
+$link=conectarse();
+mysql_query("SET NAMES 'utf8'");
+
+//echo "antes de recibir los POST <br>";
+
+if(empty($_POST['limite'])) $limite = 10; 
+else $limite = $_POST['limite'];
+if(!empty($_POST['busca1'])) $busqueda1=" `expediente`.`codTipoExp` = '".trim($_POST['busca1'])."' ";
+else $busqueda1="";
+if(!empty($_POST['busca2'])) $busqueda2=" `expediente`.`activo` = '".trim($_POST['busca2'])."' ";
+else $busqueda2="";
+if(!empty($_POST['busca3'])) $busqueda3=" `expediente`.`codEsp` = '".trim($_POST['busca3'])."' ";
+else $busqueda3="";
+if(!empty($_POST['busca4'])) $busqueda4=" `datosPer`.`cedulaPer` = '".trim($_POST['busca4'])."' "; 
+else $busqueda4="";
+
+//Si todos los parámetros están vacios, no ejecuto ninguna búsqueda!
+if(empty($busqueda1) && empty($busqueda2) && empty($busqueda3) && empty($busqueda4)) exit(0); 
+//Sino...
+if(!empty($busqueda1)) {
+	if(!empty($busqueda2)) {
+		if(!empty($busqueda3)) {
+			if(!empty($busqueda4)) {
+				$busqueda1.=" AND ".$busqueda2." AND ".$busqueda3." AND ".$busqueda4;// Todas las busquedas
+				$busqueda2="";$busqueda3="";$busqueda4="";
+			} else {
+				$busqueda1.=" AND ".$busqueda2." AND ".$busqueda3;// Las busquedas 1,2,3
+				$busqueda2="";$busqueda3="";
+			}
+		} else {
+			if(!empty($busqueda4)) {
+				$busqueda1.=" AND ".$busqueda2." AND ".$busqueda4; // Las busquedas 1,2,4 
+				$busqueda2="";$busqueda4="";				
+			} else {
+				$busqueda1.=" AND ".$busqueda2;$busqueda2="";// Las busquedas 1,2
+			}
+		}
+	} else {
+		if(!empty($busqueda3)) {
+			if(!empty($busqueda4)) {
+				$busqueda1.=" AND ".$busqueda3." AND ".$busqueda4;// Las busquedas 1,3,4
+				$busqueda3="";$busqueda4="";				
+			} else {
+				$busqueda1.=" AND ".$busqueda3;$busqueda3=""; // Las busquedas 1,3			
+			} 
+		} else {
+			if(!empty($busqueda4)) {
+				$busqueda1.=" AND ".$busqueda4; // Las busquedas 1,4				
+				$busqueda4="";
+			} // Solamente $busqueda1
+		}
+	}
+} else {
+	if(!empty($busqueda2)) {
+		if(!empty($busqueda3)) {
+			if(!empty($busqueda4)) { 
+				$busqueda1=$busqueda2." AND ".$busqueda3." AND ".$busqueda4; // Las busquedas 2,3,4
+				$busqueda2="";$busqueda3="";$busqueda4="";				
+			} else {
+				$busqueda1=$busqueda2." AND ".$busqueda3; // Las busquedas 2,3
+				$busqueda2="";$busqueda3="";
+			}
+		} else {
+			if(!empty($busqueda4)) {
+				$busqueda1=$busqueda2." AND ".$busqueda4; // Las busquedas 2,4
+				$busqueda2="";$busqueda4="";				
+			} else {
+				$busqueda1=$busqueda2;$busqueda2=""; // Solamente $busqueda2
+			}
+		}
+	} else {
+		if(!empty($busqueda3)) {
+			if(!empty($busqueda4)) {
+				$busqueda1=$busqueda3." AND ".$busqueda4; // Las busquedas 3,4
+				$busqueda3="";$busqueda4="";				
+			} else {
+				$busqueda1=$busqueda3; // Solamente $busqueda3
+				$busqueda3="";
+			}
+		} else {
+			if(!empty($busqueda4)) {
+				$busqueda1=$busqueda4; // Solamente $busqueda4
+				$busqueda4="";				
+			} 
+		}
+	}
+}
+
+//echo "Cadena ya armada: ".$busqueda1."<br>";
+
+$cadbusca="SELECT `expediente`.*,`datosPer`.*,`especialidad`.`descripEsp` FROM (`expediente` INNER JOIN `datosPer` 
+ON `expediente`.`cedulaExp`=`datosPer`.`cedulaPer`) INNER JOIN `especialidad` ON `expediente`.`codEsp`=`especialidad`.`codEsp` 
+WHERE ".$busqueda1." ORDER BY numExp DESC LIMIT ".$limite;
+
+//echo "Cadena de busqueda completa:".$cadbusca."<br>";
+
+// De aqui en adelante, se genera el pdf.  //
+class PDF extends FPDF
+{
+	function tabla($header) {	
+		$pdf->Open();
+		$pdf->AliasNbPages();
+		$pdf->SetTopMargin(15);
+		$pdf->SetLineWidth(0);
+		$pdf->AddPage();
+		$pdf->SetLeftMargin(15);
+		$pdf->Image('../Imagenes/unefa.gif',30,15,-200);		
+		// Anchuras de las columnas
+		$w = array(35, 80, 100);
+		// Cabeceras
+		for($i=0;$i<count($header);$i++)
+			$this->Cell($w[$i],7,$header[$i],1,0,'C');
+		$this->Ln();
+		// Carga real de los Datos
+		$MostrarFila = mysql_fetch_array($Resultado);
+		foreach($MostrarFila as $dato)
+		{
+			$this->Cell($w[0],6,$dato['cedulaExp'],'LR');
+			$this->Cell($w[1],6,$dato['nombre'],'LR');
+			$this->Cell($w[2],6,$dato['descripEsp'],'LR');
+			$this->Ln();
+		}
+		// Línea de cierre
+		$this->Cell(array_sum($w),0,'','T');
+	}
+}
+
+$Resultado=mysql_query($cadbusca, $link);
+$cant =  mysql_num_rows($Resultado);
+if($cant<1) {	
+?>
+	<SCRIPT LANGUAGE="Javascript" TYPE="text/javascript">
+		alert("No existen registros archivados!");
+		window.close();
+		window.history.back();
+	</SCRIPT>
+<?php
+} else {
+	$pdf=new PDF();	
+	//$pdf = new PDF();
+	// Títulos de las columnas
+	$header = array('CEDULA', 'NOMBRE', 'ESPECIALIDAD');
+	// Carga de datos
+	//$data = $pdf->LoadData('paises.txt');
+	$pdf->SetFont('Arial','',14);
+	$pdf->AddPage();
+	$pdf->tabla($header);
+		
+	$pdf->Output();
+}
+?>
+<!-- table border="1px"  width="666px" >
+<tbody>
+	<tr>
+		<th colspan="3" style='max-width:40px; min-width:40px;'>Tipo de Expediente</th>
+	</tr><tr>
+		<th style='max-width:40px; min-width:40px;'>Cédula</th>
+		<th style='max-width:80px; min-width:80px;'>Nombre</th>
+		<th style='max-width:300px; min-width:300px;'>Especialidad</th>
+	</tr -->
+<?php
+	/* $Resultado=mysql_query($cadbusca, $link);
+	$cant =  mysql_num_rows($Resultado);
+	if($cant>0){
+		$i=1;
+		while ($MostrarFila = mysql_fetch_array($Resultado)) {
+		  	echo "<tr>";
+			echo "<td align='left'>".$MostrarFila['cedulaExp']."</td>";
+			echo "<td align='left'>".$MostrarFila['nombre']."</td>";
+			echo "<td align='left'>".$MostrarFila['descripEsp']."</td>";
+			echo "</tr>";	
+		   $i++;
+		}
+		echo "<tr>";
+		echo "<th colspan='3' style='max-width:40px; min-width:40px;'> <a href='' >Generar PDF</a> </th>";	
+		echo "</tr>";
+	}*/
+?>
+<!-- /tbody>
+</table -->

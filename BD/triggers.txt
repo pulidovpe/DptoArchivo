@@ -1,0 +1,140 @@
+///////////////// Triggers EXPEDIENTE  //////////////////
+
+DROP TRIGGER IF EXISTS dpto_archivo.bit_exp_ins//
+CREATE TRIGGER dpto_archivo.bit_exp_ins AFTER INSERT ON `expediente`
+FOR EACH ROW 
+BEGIN
+INSERT INTO historico(codHist, cedulaOp, numExp, numDoc, fechaHora, operacion, cambios, tabla) VALUES (NULL, NEW.login, NEW.numExp, 0, NOW(), "INSERCION", concat(' Cedula: ',NEW.cedulaExp,' ; Especialidad: ',NEW.codEsp,' ; Tipo Expediente: ',NEW.codTipoExp,' ; Requisitos: ',NEW.requisitos,' ; Ubicacion: ',NEW.ubicacion,' ; Amonestado: ',NEW.amonesta,' ; Observacion: ',NEW.observa,' ; Activo: ',NEW.activo), "expediente");
+END
+//
+
+DROP TRIGGER IF EXISTS dpto_archivo.bit_exp_upd//
+CREATE TRIGGER dpto_archivo.bit_exp_upd AFTER UPDATE ON `expediente`
+FOR EACH ROW 
+BEGIN
+INSERT INTO historico(codHist, cedulaOp, numExp, numDoc, fechaHora, operacion, cambios, tabla) VALUES (NULL, NEW.login, NEW.numExp, 0, NOW(), "MODIFICACION", concat(' Cedula: ',NEW.cedulaExp,' ; Especialidad: ',NEW.codEsp,' ; Tipo Expediente: ',NEW.codTipoExp,' ; Requisitos: ',NEW.requisitos,' ; Ubicacion: ',NEW.ubicacion,' ; Amonestado: ',NEW.amonesta,' ; Observacion: ',NEW.observa,' ; Activo: ',NEW.activo), "expediente");
+END
+//
+
+DROP TRIGGER IF EXISTS dpto_archivo.bit_exp_del//
+CREATE TRIGGER dpto_archivo.bit_exp_del BEFORE DELETE ON `expediente`
+FOR EACH ROW 
+BEGIN
+INSERT INTO historico(codHist, cedulaOp, numExp, numDoc, fechaHora, operacion, cambios, tabla) VALUES (NULL, "99009009", OLD.numExp, 0, NOW(), "ELIMINACION", concat(' Cedula: ',OLD.cedulaExp,' ; Especialidad: ',OLD.codEsp,' ; Tipo Expediente: ',OLD.codTipoExp,' ; Requisitos: ',OLD.requisitos,' ; Ubicacion: ',OLD.ubicacion,' ; Amonestado: ',OLD.amonesta,' ; Observacion: ',OLD.observa,' ; Activo: ',OLD.activo), "expediente");
+END
+//
+
+/////////////// Triggers Documento  ////////////////////
+
+DROP TRIGGER IF EXISTS dpto_archivo.bit_doc_ins//
+CREATE TRIGGER dpto_archivo.bit_doc_ins AFTER INSERT ON `documento`
+FOR EACH ROW 
+BEGIN
+INSERT INTO historico(codHist, cedulaOp, numExp, numDoc, fechaHora, operacion, cambios, tabla) VALUES (NULL, NEW.login, 0, NEW.numDoc, NOW(), "INSERCION", concat(' Fecha Creacion: ',NOW(),' ; Departamento: ',NEW.dpto,' ; Tipo Documento: ',NEW.tipoDoc,' ; Fecha Actualizacion: ',NOW(),' ; Titulo: ',NEW.titulo,' ; Ubicacion: ',NEW.ubicacion), "documento");
+END
+//
+
+DROP TRIGGER IF EXISTS dpto_archivo.bit_doc_upd//
+CREATE TRIGGER dpto_archivo.bit_doc_upd AFTER UPDATE ON `documento`
+FOR EACH ROW 
+BEGIN
+INSERT INTO historico(codHist, cedulaOp, numExp, numDoc, fechaHora, operacion, cambios, tabla) VALUES (NULL, NEW.login, 0, NEW.numDoc, NOW(), "MODIFICACION", concat(' Fecha Creacion: ',NEW.fechaAbre,' ; Departamento: ',NEW.dpto,' ; Tipo Documento: ',NEW.tipoDoc,' ; Fecha Actualizacion: ',NOW(),' ; Titulo: ',NEW.titulo,' ; Ubicacion: ',NEW.ubicacion), "documento");
+END
+//
+
+DROP TRIGGER IF EXISTS dpto_archivo.bit_doc_del//
+CREATE TRIGGER dpto_archivo.bit_doc_del BEFORE DELETE ON `documento`
+FOR EACH ROW 
+BEGIN
+INSERT INTO historico(codHist, cedulaOp, numExp, numDoc, fechaHora, operacion, cambios, tabla) VALUES (NULL, OLD.login, 0, OLD.numDoc, NOW(), "ELIMINACION", concat(' Fecha Creacion: ',OLD.fechaAbre,' ; Departamento: ',OLD.dpto,' ; Tipo Documento: ',OLD.tipoDoc,' ; Fecha Actualizacion: ',OLD.fecha,' ; Titulo: ',OLD.titulo,' ; Ubicacion: ',OLD.ubicacion), "documento");
+END
+//
+
+/////////////// Triggers ClavePer  ////////////////////
+
+DROP TRIGGER IF EXISTS dpto_archivo.bit_cla_upd//
+CREATE TRIGGER dpto_archivo.bit_cla_upd AFTER UPDATE ON `clavePer`
+FOR EACH ROW 
+BEGIN
+INSERT INTO historico(codHist, cedulaOp, numExp, numDoc, fechaHora, operacion, cambios, tabla) VALUES (NULL, "99009009", 0, 0, NOW(), "MODIFICACION", concat(' Cedula: ',NEW.loginPer,' ; SE REALIZO CAMBIO DE CLAVE!!! '), "clavePer");
+END
+//
+
+
+/////////////// Triggers DatosPer  ////////////////////
+
+DROP TRIGGER IF EXISTS dpto_archivo.bit_per_ins//
+CREATE TRIGGER dpto_archivo.bit_per_ins AFTER INSERT ON `datosPer`
+FOR EACH ROW 
+BEGIN
+INSERT INTO historico(codHist, cedulaOp, numExp, numDoc, fechaHora, operacion, cambios, tabla) VALUES (NULL, NEW.cedulaOper, 0, 0, NOW(), "INSERCION", concat(' Cedula: ',NEW.cedulaPer,' ; Nombre: ',NEW.nombre,' ; Direccion: ',NEW.direccion,' ; Telefono: ',NEW.telefono,' ; Sexo: ',NEW.sexo), "datosPer");
+END
+//
+
+DROP TRIGGER IF EXISTS dpto_archivo.bit_per_upd//
+CREATE TRIGGER dpto_archivo.bit_per_upd AFTER UPDATE ON `datosPer`
+FOR EACH ROW 
+BEGIN
+INSERT INTO historico(codHist, cedulaOp, numExp, numDoc, fechaHora, operacion, cambios, tabla) VALUES (NULL, NEW.cedulaOper, 0, 0, NOW(), "MODIFICACION", concat(' Cedula: ',NEW.cedulaPer,' ; Nombre: ',NEW.nombre,' ; Direccion: ',NEW.direccion,' ; Telefono: ',NEW.telefono,' ; Sexo: ',NEW.sexo), "datosPer");
+END
+//
+
+DROP TRIGGER IF EXISTS dpto_archivo.bit_per_del//
+CREATE TRIGGER dpto_archivo.bit_per_del BEFORE DELETE ON `datosPer`
+FOR EACH ROW 
+BEGIN
+INSERT INTO historico(codHist, cedulaOp, numExp, numDoc, fechaHora, operacion, cambios, tabla) VALUES (NULL, "99009009", 0, 0, NOW(), "ELIMINACION", concat(' Cedula: ',OLD.cedulaPer,' ; Nombre: ',OLD.nombre,' ; Direccion: ',OLD.direccion,' ; Telefono: ',OLD.telefono,' ; Sexo: ',OLD.sexo), "datosPer");
+END
+//
+
+/////////////// Triggers Especialidad  ////////////////////
+
+DROP TRIGGER IF EXISTS dpto_archivo.bit_esp_ins//
+CREATE TRIGGER dpto_archivo.bit_esp_ins AFTER INSERT ON `especialidad`
+FOR EACH ROW 
+BEGIN
+INSERT INTO historico(codHist, cedulaOp, numExp, numDoc, fechaHora, operacion, cambios, tabla) VALUES (NULL, "99009009", 0, 0, NOW(), "INSERCION", concat(' Cod. Especialidad: ',NEW.codEsp,' ; Descripcion: ',NEW.descripEsp,' ; Nivel Academico: ',NEW.nivelAca), "especialidad");
+END
+//
+
+DROP TRIGGER IF EXISTS dpto_archivo.bit_esp_upd//
+CREATE TRIGGER dpto_archivo.bit_esp_upd AFTER UPDATE ON `especialidad`
+FOR EACH ROW 
+BEGIN
+INSERT INTO historico(codHist, cedulaOp, numExp, numDoc, fechaHora, operacion, cambios, tabla) VALUES (NULL, "99009009", 0, 0, NOW(), "MODIFICACION", concat(' Cod. Especialidad: ',NEW.codEsp,' ; Descripcion: ',NEW.descripEsp,' ; Nivel Academico: ',NEW.nivelAca), "especialidad");
+END
+//
+
+DROP TRIGGER IF EXISTS dpto_archivo.bit_esp_del//
+CREATE TRIGGER dpto_archivo.bit_esp_del BEFORE DELETE ON `especialidad`
+FOR EACH ROW 
+BEGIN
+INSERT INTO historico(codHist, cedulaOp, numExp, numDoc, fechaHora, operacion, cambios, tabla) VALUES (NULL, "99009009", 0, 0, NOW(), "ELIMINACION", concat(' Cod. Especialidad: ',OLD.codEsp,' ; Descripcion: ',OLD.descripEsp,' ; Nivel Academico: ',OLD.nivelAca), "especialidad");
+END
+//
+
+/////////////// Triggers RequisiExp  ////////////////////
+
+DROP TRIGGER IF EXISTS dpto_archivo.bit_req_ins//
+CREATE TRIGGER dpto_archivo.bit_req_ins AFTER INSERT ON `requisiExp`
+FOR EACH ROW 
+BEGIN
+INSERT INTO historico(codHist, cedulaOp, numExp, numDoc, fechaHora, operacion, cambios, tabla) VALUES (NULL, "99009009", 0, 0, NOW(), "INSERCION", concat(' Cod. Requisito: ',NEW.codReqExp,' ; Descripcion: ',NEW.descripcion,' ; Cod. Tipo Expediente: ',NEW.codTipoExp), "requisiExp");
+END
+//
+
+DROP TRIGGER IF EXISTS dpto_archivo.bit_req_upd//
+CREATE TRIGGER dpto_archivo.bit_req_upd AFTER UPDATE ON `requisiExp`
+FOR EACH ROW 
+BEGIN
+INSERT INTO historico(codHist, cedulaOp, numExp, numDoc, fechaHora, operacion, cambios, tabla) VALUES (NULL, "99009009", 0, 0, NOW(), "MODIFICACION", concat(' Cod. Requisito: ',NEW.codReqExp,' ; Descripcion: ',NEW.descripcion,' ; Cod. Tipo Expediente: ',NEW.codTipoExp), "requisiExp");
+END
+//
+
+DROP TRIGGER IF EXISTS dpto_archivo.bit_req_del//
+CREATE TRIGGER dpto_archivo.bit_req_del BEFORE DELETE ON `requisiExp`
+FOR EACH ROW 
+BEGIN
+INSERT INTO historico(codHist, cedulaOp, numExp, numDoc, fechaHora, operacion, cambios, tabla) VALUES (NULL, "99009009", 0, 0, NOW(), "ELIMINACION", concat(' Cod. Requisito: ',OLD.codReqExp,' ; Descripcion: ',OLD.descripcion,' ; Cod. Tipo Expediente: ',OLD.codTipoExp), "requisiExp");
+END
+//
